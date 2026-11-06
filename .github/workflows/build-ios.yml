@@ -16,6 +16,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
+
       - name: Build iPhone app
         run: |
           xcodebuild \
@@ -24,9 +25,10 @@ jobs:
             -configuration Debug \
             -sdk iphoneos \
             -destination 'generic/platform=iOS' \
-            -derivedDataPath build \
+            CONFIGURATION_BUILD_DIR="$PWD/build/Build/Products/Debug-iphoneos" \
             CODE_SIGNING_ALLOWED=NO \
             build
+
 
       - name: Package unsigned IPA
         run: |
