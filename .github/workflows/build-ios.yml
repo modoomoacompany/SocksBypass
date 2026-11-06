@@ -1,0 +1,42 @@
+
+name: Build iOS IPA
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Build iPhone app
+        run: |
+          xcodebuild \
+            -project SocksBypass.xcodeproj \
+            -scheme SocksBypass \
+            -configuration Debug \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Package unsigned IPA
+        run: |
+          mkdir -p Payload
+          cp -R build/Build/Products/Debug-iphoneos/SocksBypass.app Payload/
+          zip -qry SocksBypass-unsigned.ipa Payload
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: SocksBypass-iOS-unsigned
+          path: SocksBypass-unsigned.ipa
+          if-no-files-found: error
